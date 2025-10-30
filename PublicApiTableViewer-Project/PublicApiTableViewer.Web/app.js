@@ -124,15 +124,23 @@ function escapeAttr(s) { return escapeHtml(s).replace(/\s/g, ''); }
 let CACHE_USERS = null;
 let CURRENT_VIEW = { filtered: null, sort: { key: null, dir: 1 } };
 
+let helpToggleHandler = null;
+
 function bindControls() {
   const helpToggle = document.getElementById('help-toggle');
   const helpPanel = document.getElementById('help-panel');
   if (helpToggle && helpPanel) {
-    helpToggle.addEventListener('click', () => {
+    // Remove old listener if exists to prevent duplicates
+    if (helpToggleHandler) {
+      helpToggle.removeEventListener('click', helpToggleHandler);
+    }
+    // Create new handler
+    helpToggleHandler = () => {
       const expanded = helpToggle.getAttribute('aria-expanded') === 'true';
       helpToggle.setAttribute('aria-expanded', String(!expanded));
       helpPanel.classList.toggle('hidden');
-    });
+    };
+    helpToggle.addEventListener('click', helpToggleHandler);
   }
 
   const refreshBtn = document.getElementById('refresh-btn');
