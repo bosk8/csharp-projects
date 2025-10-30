@@ -27,7 +27,11 @@ This project demonstrates:
 │   ├── styles.css                 # Bosk8-styled CSS
 │   └── README.md                  # Web app documentation
 │
-└── README.md                      # This file
+├── .github/                       # GitHub Actions workflows
+│   └── workflows/
+│       └── build.yml              # CI/CD workflow
+│
+└── README.md                       # This file
 ```
 
 ## Features
@@ -210,4 +214,3 @@ MIT License - see LICENSE file in PublicApiTableViewer directory for details.
 ## Author
 
 Built with modern C# and vanilla JavaScript, demonstrating practical API consumption and web development skills.
-
