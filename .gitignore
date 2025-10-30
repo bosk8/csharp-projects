@@ -1,0 +1,51 @@
+# .NET Core
+bin/
+obj/
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+bld/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.sln.iml
+*.DotSettings.user
+*.ncrunch*
+*.ncrunchsolution
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# IDE
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Node modules (if any web dependencies added)
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Playwright browser outputs (from testing)
+/tmp/playwright-mcp-output/
+

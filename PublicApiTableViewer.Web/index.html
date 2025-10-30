@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Public API Table Viewer — Bosk8</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="bosk8">
+      <div class="container">
+        <section class="card border-b hero">
+          <h1 class="tagline">PUBLIC API TABLE VIEWER</h1>
+        </section>
+
+        <nav class="nav meta-md mt-4" id="breadcrumbs" aria-label="Breadcrumb"></nav>
+
+        <section class="card p-4" id="controls" aria-label="Controls">
+          <div class="controls-row">
+            <button class="btn" id="refresh-btn" type="button">REFRESH</button>
+            <div class="go-id">
+              <label class="meta-sm" for="go-id-input">GO TO ID</label>
+              <input id="go-id-input" class="input" inputmode="numeric" pattern="[0-9]*" placeholder="e.g. 3" />
+              <button class="btn" id="go-id-btn" type="button">GO</button>
+            </div>
+            <div class="search">
+              <label class="meta-sm" for="search-input">SEARCH</label>
+              <input id="search-input" class="input" placeholder="Name, username, email" />
+            </div>
+            <button class="btn subtle" id="help-toggle" type="button" aria-expanded="false">HELP</button>
+          </div>
+          <div class="faq-item hidden" id="help-panel">
+            <button class="faq-q" type="button">HOW TO USE<span>▼</span></button>
+            <div class="faq-a active">
+              <p class="meta-sm">Use REFRESH to reload data. Enter a numeric ID and press GO to jump to a user. SEARCH filters the list by name, username, or email. Click VIEW to open details; use BACK or breadcrumb to return.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" id="app" aria-live="polite"></section>
+      </div>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+  </html>
+
+
+
