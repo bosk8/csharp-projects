@@ -21,6 +21,8 @@
         <section class="card p-4" id="controls" aria-label="Controls">
           <div class="controls-row">
             <button class="btn" id="refresh-btn" type="button">REFRESH</button>
+            <button class="btn" id="export-csv-btn" type="button">EXPORT CSV</button>
+            <button class="btn" id="copy-json-btn" type="button">COPY JSON</button>
             <div class="go-id">
               <label class="meta-sm" for="go-id-input">GO TO ID</label>
               <input id="go-id-input" class="input" inputmode="numeric" pattern="[0-9]*" placeholder="e.g. 3" />
@@ -41,12 +43,14 @@
         </section>
 
         <section class="card" id="app" aria-live="polite"></section>
+
+        <section class="card p-4 mt-4" id="stats" aria-label="Quick stats"></section>
       </div>
     </main>
 
     <script src="./app.js"></script>
   </body>
-  </html>
+</html>
 
 
 
