@@ -20,22 +20,27 @@ jobs:
         dotnet-version: '9.0.x'
         
     - name: Restore dependencies
+      working-directory: ./PublicApiTableViewer-Project/PublicApiTableViewer
       run: dotnet restore
       
     - name: Build application
+      working-directory: ./PublicApiTableViewer-Project/PublicApiTableViewer
       run: dotnet build --no-restore --configuration Release
       
     - name: Run application (basic validation)
+      working-directory: ./PublicApiTableViewer-Project/PublicApiTableViewer
       run: |
         echo "Running application for basic validation..."
         timeout 10s dotnet run --no-build --configuration Release || true
         
     - name: Check code formatting
+      working-directory: ./PublicApiTableViewer-Project/PublicApiTableViewer
       run: |
         echo "Checking code formatting..."
         dotnet format --verify-no-changes --verbosity diagnostic
         
     - name: Validate project structure
+      working-directory: ./PublicApiTableViewer-Project/PublicApiTableViewer
       run: |
         echo "Validating project structure..."
         if [ ! -f "Program.cs" ]; then
@@ -57,6 +62,7 @@ jobs:
         echo "✅ Project structure validation passed"
         
     - name: Check for required files
+      working-directory: ./PublicApiTableViewer-Project/PublicApiTableViewer
       run: |
         echo "Checking for required files..."
         required_files=("README.md" ".gitignore" "PublicApiTableViewer.csproj" ".editorconfig")
