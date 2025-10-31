@@ -47,18 +47,27 @@ function renderUsersList(container, users) {
       <td><a class="link" href="#/users/${u.id}">VIEW</a></td>
     </tr>
   `).join('');
+  // Mark sorted column
+  const headers = ['id', 'name', 'username', 'email', 'address.city', 'company.name'];
+  const thClasses = headers.map(key => {
+    if (CURRENT_VIEW.sort.key === key) {
+      return CURRENT_VIEW.sort.dir === -1 ? 'sorted desc' : 'sorted';
+    }
+    return '';
+  });
+
   container.innerHTML = `
     <div class="p-4">
       <div class="table-scroll" role="region" aria-label="Users table">
       <table class="table">
         <thead>
           <tr>
-            <th data-key="id">ID</th>
-            <th data-key="name">Name</th>
-            <th data-key="username">Username</th>
-            <th data-key="email">Email</th>
-            <th data-key="address.city">City</th>
-            <th data-key="company.name">Company</th>
+            <th data-key="id"${thClasses[0] ? ` class="${thClasses[0]}"` : ''}>ID</th>
+            <th data-key="name"${thClasses[1] ? ` class="${thClasses[1]}"` : ''}>Name</th>
+            <th data-key="username"${thClasses[2] ? ` class="${thClasses[2]}"` : ''}>Username</th>
+            <th data-key="email"${thClasses[3] ? ` class="${thClasses[3]}"` : ''}>Email</th>
+            <th data-key="address.city"${thClasses[4] ? ` class="${thClasses[4]}"` : ''}>City</th>
+            <th data-key="company.name"${thClasses[5] ? ` class="${thClasses[5]}"` : ''}>Company</th>
             <th></th>
           </tr>
         </thead>
@@ -68,14 +77,24 @@ function renderUsersList(container, users) {
     </div>
   `;
 
-  // bind sort
-  const headers = container.querySelectorAll('th[data-key]');
-  headers.forEach(h => h.addEventListener('click', () => {
-    const key = h.getAttribute('data-key');
-    if (CURRENT_VIEW.sort.key === key) CURRENT_VIEW.sort.dir *= -1; else { CURRENT_VIEW.sort.key = key; CURRENT_VIEW.sort.dir = 1; }
-    const data = CURRENT_VIEW.filtered || CACHE_USERS || [];
-    renderUsersList(container, applySort(data));
-  }));
+  // bind sort - use event delegation on container to avoid duplicate listeners
+  if (!sortListenerBound) {
+    sortListenerBound = true;
+    container.addEventListener('click', (e) => {
+      const th = e.target.closest('th[data-key]');
+      if (!th) return;
+      e.preventDefault();
+      const key = th.getAttribute('data-key');
+      if (CURRENT_VIEW.sort.key === key) {
+        CURRENT_VIEW.sort.dir *= -1;
+      } else {
+        CURRENT_VIEW.sort.key = key;
+        CURRENT_VIEW.sort.dir = 1;
+      }
+      const data = CURRENT_VIEW.filtered || CACHE_USERS || [];
+      renderUsersList(container, applySort(data));
+    });
+  }
 }
 
 function renderUserDetail(container, user) {
@@ -125,16 +144,17 @@ let CACHE_USERS = null;
 let CURRENT_VIEW = { filtered: null, sort: { key: null, dir: 1 } };
 
 let helpToggleHandler = null;
+let controlsBound = false;
+let sortListenerBound = false;
 
 function bindControls() {
+  // Prevent duplicate binding
+  if (controlsBound) return;
+  controlsBound = true;
+
   const helpToggle = document.getElementById('help-toggle');
   const helpPanel = document.getElementById('help-panel');
   if (helpToggle && helpPanel) {
-    // Remove old listener if exists to prevent duplicates
-    if (helpToggleHandler) {
-      helpToggle.removeEventListener('click', helpToggleHandler);
-    }
-    // Create new handler
     helpToggleHandler = () => {
       const expanded = helpToggle.getAttribute('aria-expanded') === 'true';
       helpToggle.setAttribute('aria-expanded', String(!expanded));
@@ -148,38 +168,41 @@ function bindControls() {
 
   const goBtn = document.getElementById('go-id-btn');
   const goInput = document.getElementById('go-id-input');
-  const goHint = document.getElementById('go-id-hint');
   if (goBtn && goInput) {
     const go = () => {
       const v = (goInput.value || '').trim();
       if (/^\d+$/.test(v)) {
-        if (goHint) goHint.textContent = 'Enter a numeric user ID (1–10).';
         location.hash = `#/users/${v}`;
       } else {
-        if (goHint) goHint.textContent = 'Please enter a numeric ID (e.g., 3).';
         goInput.focus();
       }
     };
     goBtn.addEventListener('click', go);
     goInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
-    goInput.addEventListener('input', () => { if (goHint) goHint.textContent = 'Enter a numeric user ID (1–10).'; });
   }
 
   const searchInput = document.getElementById('search-input');
   if (searchInput) {
     searchInput.addEventListener('input', () => {
       const container = document.getElementById('app');
-      const q = searchInput.value.toLowerCase();
+      const q = searchInput.value.toLowerCase().trim();
       if (!CACHE_USERS) return;
-      const filtered = CACHE_USERS.filter(u => (
-        String(u.id).includes(q) ||
-        (u.name||'').toLowerCase().includes(q) ||
-        (u.username||'').toLowerCase().includes(q) ||
-        (u.email||'').toLowerCase().includes(q)
-      ));
-      CURRENT_VIEW.filtered = filtered;
-      renderUsersList(container, applySort(filtered));
-      renderStats(filtered);
+      if (!q) {
+        // Reset to all users when search is cleared
+        CURRENT_VIEW.filtered = null;
+        renderUsersList(container, applySort(CACHE_USERS));
+        renderStats(CACHE_USERS);
+      } else {
+        const filtered = CACHE_USERS.filter(u => (
+          String(u.id).includes(q) ||
+          (u.name||'').toLowerCase().includes(q) ||
+          (u.username||'').toLowerCase().includes(q) ||
+          (u.email||'').toLowerCase().includes(q)
+        ));
+        CURRENT_VIEW.filtered = filtered;
+        renderUsersList(container, applySort(filtered));
+        renderStats(filtered);
+      }
     });
   }
 
@@ -219,9 +242,24 @@ async function router(forceReload = false) {
       if (!CACHE_USERS || forceReload) {
         CACHE_USERS = await fetchJson(`${API_BASE}/users`);
       }
-      CURRENT_VIEW.filtered = CACHE_USERS;
-      renderUsersList(container, applySort(CACHE_USERS));
-      renderStats(CACHE_USERS);
+      // Check if search input has value and apply filter
+      const searchInput = document.getElementById('search-input');
+      if (searchInput && searchInput.value.trim()) {
+        const q = searchInput.value.toLowerCase().trim();
+        const filtered = CACHE_USERS.filter(u => (
+          String(u.id).includes(q) ||
+          (u.name||'').toLowerCase().includes(q) ||
+          (u.username||'').toLowerCase().includes(q) ||
+          (u.email||'').toLowerCase().includes(q)
+        ));
+        CURRENT_VIEW.filtered = filtered;
+        renderUsersList(container, applySort(filtered));
+        renderStats(filtered);
+      } else {
+        CURRENT_VIEW.filtered = null;
+        renderUsersList(container, applySort(CACHE_USERS));
+        renderStats(CACHE_USERS);
+      }
     } catch (e) {
       showError(container, 'Unable to load users');
     }
